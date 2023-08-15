@@ -5,15 +5,15 @@ import (
 	"math/rand"
 )
 
-type InMemoryRepository struct{}
+type memoryRepository struct{}
 
 var tasksList []*Task
 
-func (r *InMemoryRepository) FindAll() ([]*Task, error) {
+func (r *memoryRepository) findAll() ([]*Task, error) {
 	return tasksList, nil
 }
 
-func (r *InMemoryRepository) FindById(id int) (*Task, error) {
+func (r *memoryRepository) findById(id int) (*Task, error) {
 	for _, t := range tasksList {
 		if t.Id == id {
 			return t, nil
@@ -23,7 +23,7 @@ func (r *InMemoryRepository) FindById(id int) (*Task, error) {
 	return nil, errors.New("Task not found")
 }
 
-func (r *InMemoryRepository) Save(t *Task) error {
+func (r *memoryRepository) save(t *Task) error {
 	if t.Id == 0 {
 		t.Id = rand.Int()
 	}
@@ -33,7 +33,7 @@ func (r *InMemoryRepository) Save(t *Task) error {
 	return nil
 }
 
-func (r *InMemoryRepository) Delete(id int) error {
+func (r *memoryRepository) delete(id int) error {
 	for i, t := range tasksList {
 		if t.Id == id {
 			tasksList = append(tasksList[:i], tasksList[i+1:]...)

@@ -9,7 +9,7 @@ import (
 )
 
 func index(w http.ResponseWriter, r *http.Request) {
-	tasks, _ := repositories.FindAllTasks(repositories.NewRepository())
+	tasks, _ := repositories.FindAllTasks()
 
 	resp, _ := json.Marshal(struct {
 		Tasks []*repositories.Task `json:"tasks" `
@@ -27,7 +27,7 @@ func store(w http.ResponseWriter, r *http.Request) {
 
 	json.NewDecoder(r.Body).Decode(&t)
 
-	err := repositories.CreateTask(t, repositories.NewRepository())
+	err := repositories.CreateTask(t)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -47,7 +47,7 @@ func update(w http.ResponseWriter, r *http.Request) {
 
 	json.NewDecoder(r.Body).Decode(&t)
 
-	err := repositories.UpdateTask(id, t, repositories.NewRepository())
+	err := repositories.UpdateTask(id, t)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -64,7 +64,7 @@ func update(w http.ResponseWriter, r *http.Request) {
 func show(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
 
-	t, err := repositories.FindTaskById(id, repositories.NewRepository())
+	t, err := repositories.FindTaskById(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte(err.Error()))
@@ -81,7 +81,7 @@ func show(w http.ResponseWriter, r *http.Request) {
 func delete(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
 
-	err := repositories.DeleteTask(id, repositories.NewRepository())
+	err := repositories.DeleteTask(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte(err.Error()))

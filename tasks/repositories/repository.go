@@ -12,35 +12,35 @@ type Task struct {
 	Description string `json:"description"`
 }
 
-type Repository interface {
-	FindAll() ([]*Task, error)
-	FindById(id int) (*Task, error)
-	Save(task *Task) error
-	Delete(id int) error
+type repository interface {
+	findAll() ([]*Task, error)
+	findById(id int) (*Task, error)
+	save(task *Task) error
+	delete(id int) error
 }
 
-func NewRepository() Repository {
+func repo() repository {
 	switch os.Getenv("DATABASE_DRIVER") {
 	case "memory":
-		return &InMemoryRepository{}
+		return &memoryRepository{}
 	default:
 		log.Fatalf("Database driver %s not supported", os.Getenv("DATABASE_DRIVER"))
 		return nil
 	}
 }
 
-func FindAllTasks(repo Repository) ([]*Task, error) {
-	return repo.FindAll()
+func FindAllTasks() ([]*Task, error) {
+	return repo().findAll()
 }
 
-func CreateTask(t *Task, repo Repository) error {
+func CreateTask(t *Task) error {
 	err := []error{}
 
 	if t.Title == "" {
 		err = append(err, errors.New("Title is required"))
 	}
 
-	if repo.Save(t) != nil {
+	if repo().save(t) != nil {
 		err = append(err, errors.New("Could not save task"))
 	}
 
@@ -51,14 +51,17 @@ func CreateTask(t *Task, repo Repository) error {
 	return nil
 }
 
-func UpdateTask(id int, t *Task, repo Repository) error {
-	var err []error
+func UpdateTask(id int, t *Task) error {
+	var (
+		err  []error
+		repo repository = repo()
+	)
 
 	if t.Title == "" {
 		err = append(err, errors.New("Title is required"))
 	}
 
-	task, e := repo.FindById(id)
+	task, e := repo.findById(id)
 	if e != nil {
 		err = append(err, errors.New("Could not find task"))
 	}
@@ -66,7 +69,7 @@ func UpdateTask(id int, t *Task, repo Repository) error {
 	task.Title = t.Title
 	task.Description = t.Description
 
-	if repo.Save(task) != nil {
+	if repo.save(task) != nil {
 		err = append(err, errors.New("Could not save task"))
 	}
 
@@ -77,10 +80,10 @@ func UpdateTask(id int, t *Task, repo Repository) error {
 	return nil
 }
 
-func FindTaskById(id int, repo Repository) (*Task, error) {
-	return repo.FindById(id)
+func FindTaskById(id int) (*Task, error) {
+	return repo().findById(id)
 }
 
-func DeleteTask(id int, repo Repository) error {
-	return repo.Delete(id)
+func DeleteTask(id int) error {
+	return repo().delete(id)
 }
