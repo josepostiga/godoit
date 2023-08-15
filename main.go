@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/go-chi/chi/v5"
+	"github.com/joho/godotenv"
 	health_check "godoit/health-check"
 	"godoit/tasks"
 	"log"
@@ -9,8 +10,12 @@ import (
 )
 
 func main() {
-	r := chi.NewRouter()
+	err := godotenv.Load(".env")
+	if err != nil {
+		log.Fatalf("Couldn't load .env file: %s", err)
+	}
 
+	r := chi.NewRouter()
 	health_check.RegisterRoutes(r)
 	tasks.RegisterRoutes(r)
 

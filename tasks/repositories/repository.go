@@ -2,6 +2,8 @@ package repositories
 
 import (
 	"errors"
+	"log"
+	"os"
 )
 
 type Task struct {
@@ -15,6 +17,16 @@ type Repository interface {
 	FindById(id int) (*Task, error)
 	Save(task *Task) error
 	Delete(id int) error
+}
+
+func NewRepository() Repository {
+	switch os.Getenv("DATABASE_DRIVER") {
+	case "memory":
+		return &InMemoryRepository{}
+	default:
+		log.Fatalf("Database driver %s not supported", os.Getenv("DATABASE_DRIVER"))
+		return nil
+	}
 }
 
 func FindAllTasks(repo Repository) ([]*Task, error) {
