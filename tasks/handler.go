@@ -8,6 +8,12 @@ import (
 	"strconv"
 )
 
+func respond(w http.ResponseWriter, resp []byte, status int) {
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(status)
+	w.Write(resp)
+}
+
 func index(w http.ResponseWriter, r *http.Request) {
 	tasks, _ := repositories.FindAllTasks()
 
@@ -17,9 +23,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 		Tasks: tasks,
 	})
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(resp)
+	respond(w, resp, http.StatusOK)
 }
 
 func store(w http.ResponseWriter, r *http.Request) {
@@ -36,9 +40,7 @@ func store(w http.ResponseWriter, r *http.Request) {
 
 	resp, _ := json.Marshal(&t)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusCreated)
-	w.Write(resp)
+	respond(w, resp, http.StatusCreated)
 }
 
 func update(w http.ResponseWriter, r *http.Request) {
@@ -56,9 +58,7 @@ func update(w http.ResponseWriter, r *http.Request) {
 
 	resp, _ := json.Marshal(&t)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(resp)
+	respond(w, resp, http.StatusOK)
 }
 
 func show(w http.ResponseWriter, r *http.Request) {
@@ -73,9 +73,7 @@ func show(w http.ResponseWriter, r *http.Request) {
 
 	resp, _ := json.Marshal(&t)
 
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	w.Write(resp)
+	respond(w, resp, http.StatusOK)
 }
 
 func delete(w http.ResponseWriter, r *http.Request) {
@@ -88,5 +86,5 @@ func delete(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	w.WriteHeader(http.StatusNoContent)
+	respond(w, nil, http.StatusNoContent)
 }
