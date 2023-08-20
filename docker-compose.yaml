@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    expose:
+      - 5432
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: root
+      POSTGRES_DB: main
+    command: postgres -c log_min_duration_statement=0
+    restart: unless-stopped
+
+volumes:
+  db_data:
