@@ -45,11 +45,12 @@ func store(w http.ResponseWriter, r *http.Request) {
 
 func update(w http.ResponseWriter, r *http.Request) {
 	var t *repositories.Task
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
 	json.NewDecoder(r.Body).Decode(&t)
+	t.Id = id
 
-	err := repositories.UpdateTask(id, t)
+	err := repositories.UpdateTask(t)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -62,7 +63,7 @@ func update(w http.ResponseWriter, r *http.Request) {
 }
 
 func show(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
 	t, err := repositories.FindTaskById(id)
 	if err != nil {
@@ -77,7 +78,7 @@ func show(w http.ResponseWriter, r *http.Request) {
 }
 
 func delete(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.Atoi(chi.URLParam(r, "id"))
+	id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
 	err := repositories.DeleteTask(id)
 	if err != nil {

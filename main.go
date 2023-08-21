@@ -26,7 +26,7 @@ func main() {
 		fmt.Println("HTTP_PORT not set, using default port")
 		port = "8080"
 	}
-	fmt.Printf("Starting server on port %s", port)
+	fmt.Printf("Started server on port %s", port)
 
 	log.Fatalf("Couldn't start server: %s", http.ListenAndServe(":"+port, r))
 }

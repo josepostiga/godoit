@@ -1,28 +1,47 @@
 package repositories
 
 import (
+	"database/sql"
 	"errors"
 	"log"
+	"net/url"
 	"os"
+
+	_ "github.com/lib/pq"
 )
 
 type Task struct {
-	Id          int    `json:"id"`
+	Id          int64  `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }
 
 type repository interface {
 	findAll() ([]*Task, error)
-	findById(id int) (*Task, error)
-	save(task *Task) error
-	delete(id int) error
+	findById(id int64) (*Task, error)
+	create(task *Task) error
+	update(task *Task) error
+	delete(id int64) error
 }
 
 func repo() repository {
 	switch os.Getenv("DATABASE_DRIVER") {
 	case "memory":
 		return &memoryRepository{}
+	case "database":
+		dsl, err := url.Parse(os.Getenv("DATABASE_URL"))
+		if err != nil {
+			log.Fatalf("Could not parse DATABASE_URL: %v", err)
+			return nil
+		}
+
+		db, err := sql.Open("postgres", dsl.String())
+		if err != nil {
+			log.Fatalf("Could not open database: %v", err)
+			return nil
+		}
+
+		return &dbRepository{db}
 	default:
 		log.Fatalf("Database driver %s not supported", os.Getenv("DATABASE_DRIVER"))
 		return nil
@@ -40,8 +59,8 @@ func CreateTask(t *Task) error {
 		err = append(err, errors.New("Title is required"))
 	}
 
-	if repo().save(t) != nil {
-		err = append(err, errors.New("Could not save task"))
+	if e := repo().create(t); e != nil {
+		err = append(err, errors.New("Could not save task: "+e.Error()))
 	}
 
 	if len(err) > 0 {
@@ -51,7 +70,7 @@ func CreateTask(t *Task) error {
 	return nil
 }
 
-func UpdateTask(id int, t *Task) error {
+func UpdateTask(t *Task) error {
 	var (
 		err  []error
 		repo repository = repo()
@@ -61,16 +80,13 @@ func UpdateTask(id int, t *Task) error {
 		err = append(err, errors.New("Title is required"))
 	}
 
-	task, e := repo.findById(id)
-	if e != nil {
+	if _, e := repo.findById(t.Id); e != nil {
 		err = append(err, errors.New("Could not find task"))
+		return errors.Join(err...)
 	}
 
-	task.Title = t.Title
-	task.Description = t.Description
-
-	if repo.save(task) != nil {
-		err = append(err, errors.New("Could not save task"))
+	if e := repo.update(t); e != nil {
+		err = append(err, errors.New("Could not save task: "+e.Error()))
 	}
 
 	if len(err) > 0 {
@@ -80,10 +96,10 @@ func UpdateTask(id int, t *Task) error {
 	return nil
 }
 
-func FindTaskById(id int) (*Task, error) {
+func FindTaskById(id int64) (*Task, error) {
 	return repo().findById(id)
 }
 
-func DeleteTask(id int) error {
+func DeleteTask(id int64) error {
 	return repo().delete(id)
 }

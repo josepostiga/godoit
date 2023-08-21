@@ -25,5 +25,5 @@ Simple todo list app made with Go used as a learning project.
 3. Run `go build` to build the program.
 4. Ensure that the `.env` file is up-to-date.
 5. If using the `postgres` database driver:
-   1. Run migrations with a migration tool of your choice (recommended: https://github.com/golang-migrate/migrate).
+   1. Run latest migrations with a migration tool of your choice (recommended: https://github.com/golang-migrate/migrate).
 6. Run the program with `./GoDoIt`.
