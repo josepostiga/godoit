@@ -15,7 +15,7 @@ Simple todo list app made with Go used as a learning project.
 4. Copy the `.env.example` file to `.env` and fill in the values.
 5. If using the `postgres` database driver:
    1. If you don't have a running PostgreSQL server, you can run the `docker-compose.yaml` file with `docker compose up -d` to get one, quickly.
-   2. Run migrations inside `scripts/migrations` with a migration tool of your choice (recommended: https://github.com/golang-migrate/migrate).
+   2. Run migrations inside `./scripts/migrations` with a migration tool of your choice (recommended: https://github.com/golang-migrate/migrate).
 6. Run the program with `./cmd/godoit`.
 
 ## Upgrading
