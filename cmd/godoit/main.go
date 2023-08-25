@@ -4,15 +4,15 @@ import (
 	"fmt"
 	"github.com/go-chi/chi/v5"
 	"github.com/joho/godotenv"
-	health_check "godoit/health-check"
-	"godoit/tasks"
+	health_check "github.com/josepostiga/godoit/internal/health-check"
+	"github.com/josepostiga/godoit/internal/tasks"
 	"log"
 	"net/http"
 	"os"
 )
 
 func main() {
-	err := godotenv.Load(".env")
+	err := godotenv.Load("./configs/.env")
 	if err != nil {
 		log.Fatalf("Couldn't load .env file: %s", err)
 	}

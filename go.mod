@@ -1,4 +1,4 @@
-module godoit
+module github.com/josepostiga/godoit
 
 go 1.21
 

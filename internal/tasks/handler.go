@@ -3,7 +3,7 @@ package tasks
 import (
 	"encoding/json"
 	"github.com/go-chi/chi/v5"
-	"godoit/tasks/repositories"
+	"github.com/josepostiga/godoit/internal/tasks/repositories"
 	"net/http"
 	"strconv"
 )
