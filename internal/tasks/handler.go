@@ -5,6 +5,7 @@ import (
 	"github.com/go-chi/chi/v5"
 	"github.com/josepostiga/godoit/internal/tasks/repositories"
 	"net/http"
+	"os"
 	"strconv"
 )
 
@@ -15,7 +16,7 @@ func respond(w http.ResponseWriter, resp []byte, status int) {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	tasks, _ := repositories.FindAllTasks()
+	tasks, _ := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).FindAll()
 
 	resp, _ := json.Marshal(struct {
 		Tasks []*repositories.Task `json:"tasks" `
@@ -31,7 +32,7 @@ func store(w http.ResponseWriter, r *http.Request) {
 
 	json.NewDecoder(r.Body).Decode(&t)
 
-	err := repositories.CreateTask(t)
+	err := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).Create(t)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -50,7 +51,7 @@ func update(w http.ResponseWriter, r *http.Request) {
 	json.NewDecoder(r.Body).Decode(&t)
 	t.Id = id
 
-	err := repositories.UpdateTask(t)
+	err := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).Update(t)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(err.Error()))
@@ -65,7 +66,7 @@ func update(w http.ResponseWriter, r *http.Request) {
 func show(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
-	t, err := repositories.FindTaskById(id)
+	t, err := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).FindById(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte(err.Error()))
@@ -80,7 +81,7 @@ func show(w http.ResponseWriter, r *http.Request) {
 func delete(w http.ResponseWriter, r *http.Request) {
 	id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
 
-	err := repositories.DeleteTask(id)
+	err := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).Delete(id)
 	if err != nil {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte(err.Error()))
