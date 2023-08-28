@@ -9,7 +9,7 @@ type dbRepository struct {
 	db *sql.DB
 }
 
-func (r *dbRepository) FindAll() ([]*Task, error) {
+func (r dbRepository) FindAll() ([]*Task, error) {
 	rows, err := r.db.Query("SELECT id, title, description FROM tasks")
 	if err != nil {
 		return nil, err
@@ -29,7 +29,7 @@ func (r *dbRepository) FindAll() ([]*Task, error) {
 	return tasksList, nil
 }
 
-func (r *dbRepository) FindById(id int64) (*Task, error) {
+func (r dbRepository) FindById(id int64) (*Task, error) {
 	t := new(Task)
 
 	err := r.db.QueryRow("SELECT id, title, description FROM tasks WHERE id = $1", id).Scan(&t.Id, &t.Title, &t.Description)
@@ -40,7 +40,7 @@ func (r *dbRepository) FindById(id int64) (*Task, error) {
 	return t, nil
 }
 
-func (r *dbRepository) Create(t *Task) error {
+func (r dbRepository) Create(t *Task) error {
 	if t.Title == "" {
 		return errors.New("Title is required")
 	}
@@ -52,7 +52,7 @@ func (r *dbRepository) Create(t *Task) error {
 	return nil
 }
 
-func (r *dbRepository) Update(t *Task) error {
+func (r dbRepository) Update(t *Task) error {
 	if t.Title == "" {
 		return errors.New("Title is required")
 	}
@@ -68,7 +68,7 @@ func (r *dbRepository) Update(t *Task) error {
 	return nil
 }
 
-func (r *dbRepository) Delete(id int64) error {
+func (r dbRepository) Delete(id int64) error {
 	_, err := r.db.Exec("DELETE FROM tasks WHERE id = $1", id)
 	return err
 }

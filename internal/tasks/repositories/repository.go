@@ -26,7 +26,7 @@ type repository interface {
 func NewRepository(driver string) repository {
 	switch driver {
 	case "memory":
-		return &memoryRepository{}
+		return memoryRepository{}
 	case "database":
 		dsl, err := url.Parse(os.Getenv("DATABASE_URL"))
 		if err != nil {
@@ -40,7 +40,7 @@ func NewRepository(driver string) repository {
 			return nil
 		}
 
-		return &dbRepository{db}
+		return dbRepository{db}
 	default:
 		log.Fatalf("Database driver %s not supported", os.Getenv("DATABASE_DRIVER"))
 		return nil

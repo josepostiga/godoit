@@ -9,11 +9,11 @@ type memoryRepository struct{}
 
 var tasksList []*Task
 
-func (r *memoryRepository) FindAll() ([]*Task, error) {
+func (r memoryRepository) FindAll() ([]*Task, error) {
 	return tasksList, nil
 }
 
-func (r *memoryRepository) FindById(id int64) (*Task, error) {
+func (r memoryRepository) FindById(id int64) (*Task, error) {
 	for _, t := range tasksList {
 		if t.Id == id {
 			return t, nil
@@ -23,7 +23,7 @@ func (r *memoryRepository) FindById(id int64) (*Task, error) {
 	return nil, errors.New("Task not found")
 }
 
-func (r *memoryRepository) Create(t *Task) error {
+func (r memoryRepository) Create(t *Task) error {
 	err := []error{}
 
 	if t.Title == "" {
@@ -40,7 +40,7 @@ func (r *memoryRepository) Create(t *Task) error {
 	return nil
 }
 
-func (r *memoryRepository) Update(t *Task) error {
+func (r memoryRepository) Update(t *Task) error {
 	var err []error
 
 	if t.Title == "" {
@@ -63,7 +63,7 @@ func (r *memoryRepository) Update(t *Task) error {
 	return nil
 }
 
-func (r *memoryRepository) Delete(id int64) error {
+func (r memoryRepository) Delete(id int64) error {
 	var err []error
 
 	for i, t := range tasksList {
