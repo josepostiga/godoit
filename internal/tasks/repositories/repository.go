@@ -23,10 +23,16 @@ type repository interface {
 	Delete(id int64) error
 }
 
+var initiatedRepo repository
+
 func NewRepository(driver string) repository {
+	if initiatedRepo != nil {
+		return initiatedRepo
+	}
+
 	switch driver {
 	case "memory":
-		return memoryRepository{}
+		initiatedRepo = memoryRepository{}
 	case "database":
 		dsl, err := url.Parse(os.Getenv("DATABASE_URL"))
 		if err != nil {
@@ -40,9 +46,11 @@ func NewRepository(driver string) repository {
 			return nil
 		}
 
-		return dbRepository{db}
+		initiatedRepo = dbRepository{db}
 	default:
 		log.Fatalf("Database driver %s not supported", os.Getenv("DATABASE_DRIVER"))
 		return nil
 	}
+
+	return initiatedRepo
 }
