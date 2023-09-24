@@ -1,11 +1,10 @@
 package health_check
 
 import (
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v2"
 )
 
-func RegisterRoutes(r chi.Router) {
-	r.Route("/health-check", func(r chi.Router) {
-		r.Get("/", show)
-	})
+func RegisterRoutes(app *fiber.App) {
+	app.Group("/health-check").
+		Get("/", show)
 }

@@ -2,12 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v2"
 	"github.com/joho/godotenv"
 	health_check "github.com/josepostiga/godoit/internal/health-check"
 	"github.com/josepostiga/godoit/internal/tasks"
 	"log"
-	"net/http"
 	"os"
 )
 
@@ -17,9 +16,10 @@ func main() {
 		log.Fatalf("Couldn't load .env file: %s", err)
 	}
 
-	r := chi.NewRouter()
-	health_check.RegisterRoutes(r)
-	tasks.RegisterRoutes(r)
+	app := fiber.New()
+
+	health_check.RegisterRoutes(app)
+	tasks.RegisterRoutes(app)
 
 	port := os.Getenv("HTTP_PORT")
 	if port == "" {
@@ -28,5 +28,5 @@ func main() {
 	}
 	fmt.Printf("Started server on port %s", port)
 
-	log.Fatalf("Couldn't start server: %s", http.ListenAndServe(":"+port, r))
+	log.Fatalf("Couldn't start server: %s", app.Listen(":"+port))
 }

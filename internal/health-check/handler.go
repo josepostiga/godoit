@@ -1,10 +1,13 @@
 package health_check
 
 import (
+	"github.com/gofiber/fiber/v2"
 	"net/http"
 )
 
-func show(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
+func show(c *fiber.Ctx) error {
+	return c.Status(http.StatusOK).
+		JSON(&fiber.Map{
+			"status": "OK",
+		})
 }

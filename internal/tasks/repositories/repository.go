@@ -10,17 +10,17 @@ import (
 )
 
 type Task struct {
-	Id          int64  `json:"id"`
+	Id          int    `json:"id"`
 	Title       string `json:"title"`
 	Description string `json:"description"`
 }
 
 type repository interface {
 	FindAll() ([]*Task, error)
-	FindById(id int64) (*Task, error)
+	FindById(id int) (*Task, error)
 	Create(task *Task) error
 	Update(task *Task) error
-	Delete(id int64) error
+	Delete(id int) error
 }
 
 var initiatedRepo repository

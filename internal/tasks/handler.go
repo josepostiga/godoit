@@ -1,92 +1,83 @@
 package tasks
 
 import (
+	"bytes"
 	"encoding/json"
-	"github.com/go-chi/chi/v5"
+	"github.com/gofiber/fiber/v2"
 	"github.com/josepostiga/godoit/internal/tasks/repositories"
 	"net/http"
 	"os"
-	"strconv"
 )
 
-func respond(w http.ResponseWriter, resp []byte, status int) {
-	w.Header().Set("Content-Type", "application/json")
-	w.WriteHeader(status)
-	w.Write(resp)
+func response(c *fiber.Ctx, data interface{}, status int) error {
+	c.Status(status)
+
+	if data == nil {
+		return nil
+	}
+
+	return c.JSON(&fiber.Map{
+		"data": data,
+	})
 }
 
-func index(w http.ResponseWriter, r *http.Request) {
+func index(c *fiber.Ctx) error {
 	tasks, _ := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).FindAll()
 
-	resp, _ := json.Marshal(struct {
-		Tasks []*repositories.Task `json:"tasks" `
-	}{
-		Tasks: tasks,
-	})
-
-	respond(w, resp, http.StatusOK)
+	return response(c, tasks, fiber.StatusOK)
 }
 
-func store(w http.ResponseWriter, r *http.Request) {
+func store(c *fiber.Ctx) error {
 	var t *repositories.Task
 
-	json.NewDecoder(r.Body).Decode(&t)
+	if err := json.NewDecoder(bytes.NewReader(c.BodyRaw())).Decode(&t); err != nil {
+		return err
+	}
 
 	err := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).Create(t)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		return
+		return response(c, &fiber.Map{"error": err.Error()}, fiber.StatusBadRequest)
 	}
 
-	resp, _ := json.Marshal(&t)
-
-	respond(w, resp, http.StatusCreated)
+	return response(c, t, fiber.StatusCreated)
 }
 
-func update(w http.ResponseWriter, r *http.Request) {
+func update(c *fiber.Ctx) error {
 	var t *repositories.Task
-	id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+	id, _ := c.ParamsInt("id")
 
-	json.NewDecoder(r.Body).Decode(&t)
+	if err := json.NewDecoder(bytes.NewReader(c.BodyRaw())).Decode(&t); err != nil {
+		return err
+	}
+
 	t.Id = id
 
 	err := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).Update(t)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(err.Error()))
-		return
+		return response(c, &fiber.Map{"error": err.Error()}, fiber.StatusBadRequest)
 	}
 
-	resp, _ := json.Marshal(&t)
-
-	respond(w, resp, http.StatusOK)
+	return response(c, t, fiber.StatusOK)
 }
 
-func show(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+func show(c *fiber.Ctx) error {
+	id, _ := c.ParamsInt("id")
 
 	t, err := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).FindById(id)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(err.Error()))
-		return
+		return response(c, &fiber.Map{"error": err.Error()}, fiber.StatusNotFound)
 	}
 
-	resp, _ := json.Marshal(&t)
-
-	respond(w, resp, http.StatusOK)
+	return response(c, t, fiber.StatusOK)
 }
 
-func delete(w http.ResponseWriter, r *http.Request) {
-	id, _ := strconv.ParseInt(chi.URLParam(r, "id"), 10, 64)
+func delete(c *fiber.Ctx) error {
+	id, _ := c.ParamsInt("id")
 
 	err := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).Delete(id)
 	if err != nil {
-		w.WriteHeader(http.StatusNotFound)
-		w.Write([]byte(err.Error()))
-		return
+		return response(c, &fiber.Map{"error": err.Error()}, fiber.StatusNotFound)
 	}
 
-	respond(w, nil, http.StatusNoContent)
+	return response(c, nil, http.StatusNoContent)
 }

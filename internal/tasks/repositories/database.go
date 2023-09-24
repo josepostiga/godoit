@@ -29,7 +29,7 @@ func (r dbRepository) FindAll() ([]*Task, error) {
 	return tasksList, nil
 }
 
-func (r dbRepository) FindById(id int64) (*Task, error) {
+func (r dbRepository) FindById(id int) (*Task, error) {
 	t := new(Task)
 
 	err := r.db.QueryRow("SELECT id, title, description FROM tasks WHERE id = $1", id).Scan(&t.Id, &t.Title, &t.Description)
@@ -68,7 +68,7 @@ func (r dbRepository) Update(t *Task) error {
 	return nil
 }
 
-func (r dbRepository) Delete(id int64) error {
+func (r dbRepository) Delete(id int) error {
 	_, err := r.db.Exec("DELETE FROM tasks WHERE id = $1", id)
 	return err
 }

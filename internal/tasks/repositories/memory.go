@@ -13,7 +13,7 @@ func (r memoryRepository) FindAll() ([]*Task, error) {
 	return tasksList, nil
 }
 
-func (r memoryRepository) FindById(id int64) (*Task, error) {
+func (r memoryRepository) FindById(id int) (*Task, error) {
 	for _, t := range tasksList {
 		if t.Id == id {
 			return t, nil
@@ -30,7 +30,7 @@ func (r memoryRepository) Create(t *Task) error {
 		err = append(err, errors.New("Title is required"))
 	}
 
-	t.Id = rand.Int63()
+	t.Id = rand.Int()
 	tasksList = append(tasksList, t)
 
 	if len(err) > 0 {
@@ -63,7 +63,7 @@ func (r memoryRepository) Update(t *Task) error {
 	return nil
 }
 
-func (r memoryRepository) Delete(id int64) error {
+func (r memoryRepository) Delete(id int) error {
 	var err []error
 
 	for i, t := range tasksList {
