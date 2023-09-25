@@ -3,6 +3,7 @@ package repositories
 import (
 	"database/sql"
 	"errors"
+	"time"
 )
 
 type dbRepository struct {
@@ -10,7 +11,7 @@ type dbRepository struct {
 }
 
 func (r dbRepository) FindAll() ([]*Task, error) {
-	rows, err := r.db.Query("SELECT id, title, description FROM tasks")
+	rows, err := r.db.Query("SELECT * FROM tasks")
 	if err != nil {
 		return nil, err
 	}
@@ -19,7 +20,7 @@ func (r dbRepository) FindAll() ([]*Task, error) {
 	tasksList := make([]*Task, 0)
 	for rows.Next() {
 		t := new(Task)
-		err := rows.Scan(&t.Id, &t.Title, &t.Description)
+		err := rows.Scan(&t.Id, &t.Title, &t.Description, &t.Created_at, &t.Updated_at, &t.Completed_at)
 		if err != nil {
 			return nil, err
 		}
@@ -32,7 +33,8 @@ func (r dbRepository) FindAll() ([]*Task, error) {
 func (r dbRepository) FindById(id int) (*Task, error) {
 	t := new(Task)
 
-	err := r.db.QueryRow("SELECT id, title, description FROM tasks WHERE id = $1", id).Scan(&t.Id, &t.Title, &t.Description)
+	err := r.db.QueryRow("SELECT * FROM tasks WHERE id = $1", id).
+		Scan(&t.Id, &t.Title, &t.Description, &t.Created_at, &t.Updated_at, &t.Completed_at)
 	if err != nil {
 		return nil, err
 	}
@@ -71,4 +73,23 @@ func (r dbRepository) Update(t *Task) error {
 func (r dbRepository) Delete(id int) error {
 	_, err := r.db.Exec("DELETE FROM tasks WHERE id = $1", id)
 	return err
+}
+
+func (r dbRepository) ToggleStatus(id int) error {
+	t, err := r.FindById(id)
+	if err != nil {
+		return err
+	}
+
+	if t.Completed_at.Valid {
+		t.Completed_at.Scan(nil)
+	} else {
+		t.Completed_at.Scan(time.Now())
+	}
+
+	if _, e := r.db.Exec("UPDATE tasks set completed_at=$1 where id = $2", t.Completed_at, t.Id); e != nil {
+		return errors.New("Could not save task")
+	}
+
+	return nil
 }

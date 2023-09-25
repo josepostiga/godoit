@@ -3,6 +3,7 @@ package repositories
 import (
 	"errors"
 	"math/rand"
+	"time"
 )
 
 type memoryRepository struct{}
@@ -69,6 +70,28 @@ func (r memoryRepository) Delete(id int) error {
 	for i, t := range tasksList {
 		if t.Id == id {
 			tasksList = append(tasksList[:i], tasksList[i+1:]...)
+			return nil
+		}
+		err = append(err, errors.New("Could not find task"))
+	}
+
+	if len(err) > 0 {
+		return errors.Join(err...)
+	}
+
+	return nil
+}
+
+func (r memoryRepository) ToggleStatus(id int) error {
+	var err []error
+
+	for _, t := range tasksList {
+		if t.Id == id {
+			if t.Completed_at.Valid {
+				t.Completed_at.Scan(nil)
+			} else {
+				t.Completed_at.Scan(time.Now())
+			}
 			return nil
 		}
 		err = append(err, errors.New("Could not find task"))

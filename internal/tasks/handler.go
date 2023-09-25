@@ -70,3 +70,14 @@ func delete(c *fiber.Ctx) error {
 
 	return responses.New(c, nil, http.StatusNoContent)
 }
+
+func status(c *fiber.Ctx) error {
+	id, _ := c.ParamsInt("id")
+
+	err := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).ToggleStatus(id)
+	if err != nil {
+		return responses.New(c, &fiber.Map{"error": err.Error()}, fiber.StatusNotFound)
+	}
+
+	return responses.New(c, nil, fiber.StatusOK)
+}

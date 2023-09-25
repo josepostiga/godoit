@@ -10,5 +10,6 @@ func RegisterRoutes(app *fiber.App) {
 		Post("/", store).
 		Patch("/:id", update).
 		Get("/:id", show).
-		Delete("/:id", delete)
+		Delete("/:id", delete).
+		Post("/:id/status", status)
 }
