@@ -2,10 +2,11 @@ package tasks
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/josepostiga/godoit/internal/authentication/middleware"
 )
 
 func RegisterRoutes(app *fiber.App) {
-	app.Group("/tasks").
+	app.Group("/tasks", middleware.Authenticated).
 		Get("/", index).
 		Post("/", store).
 		Patch("/:id", update).
