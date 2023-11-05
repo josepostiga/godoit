@@ -7,23 +7,24 @@ import (
 	"github.com/josepostiga/godoit/internal"
 	"github.com/josepostiga/godoit/internal/tasks/repositories"
 	"net/http"
-	"os"
 )
 
 func index(c *fiber.Ctx) error {
-	tasks, _ := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).FindAll()
+	var r = repositories.New()
+	var tasks, _ = r.FindAll()
 
 	return responses.New(c, tasks, fiber.StatusOK)
 }
 
 func store(c *fiber.Ctx) error {
 	var t *repositories.Task
+	var r = repositories.New()
 
 	if err := json.NewDecoder(bytes.NewReader(c.BodyRaw())).Decode(&t); err != nil {
 		return err
 	}
 
-	err := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).Create(t)
+	err := r.Create(t)
 	if err != nil {
 		return responses.New(c, &fiber.Map{"error": err.Error()}, fiber.StatusBadRequest)
 	}
@@ -33,7 +34,8 @@ func store(c *fiber.Ctx) error {
 
 func update(c *fiber.Ctx) error {
 	var t *repositories.Task
-	id, _ := c.ParamsInt("id")
+	var r = repositories.New()
+	var id, _ = c.ParamsInt("id")
 
 	if err := json.NewDecoder(bytes.NewReader(c.BodyRaw())).Decode(&t); err != nil {
 		return err
@@ -41,7 +43,7 @@ func update(c *fiber.Ctx) error {
 
 	t.Id = id
 
-	err := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).Update(t)
+	err := r.Update(t)
 	if err != nil {
 		return responses.New(c, &fiber.Map{"error": err.Error()}, fiber.StatusBadRequest)
 	}
@@ -50,9 +52,10 @@ func update(c *fiber.Ctx) error {
 }
 
 func show(c *fiber.Ctx) error {
-	id, _ := c.ParamsInt("id")
+	var id, _ = c.ParamsInt("id")
+	var r = repositories.New()
 
-	t, err := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).FindById(id)
+	t, err := r.FindById(id)
 	if err != nil {
 		return responses.New(c, &fiber.Map{"error": err.Error()}, fiber.StatusNotFound)
 	}
@@ -61,9 +64,10 @@ func show(c *fiber.Ctx) error {
 }
 
 func delete(c *fiber.Ctx) error {
-	id, _ := c.ParamsInt("id")
+	var r = repositories.New()
+	var id, _ = c.ParamsInt("id")
 
-	err := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).Delete(id)
+	err := r.Delete(id)
 	if err != nil {
 		return responses.New(c, &fiber.Map{"error": err.Error()}, fiber.StatusNotFound)
 	}
@@ -72,9 +76,10 @@ func delete(c *fiber.Ctx) error {
 }
 
 func status(c *fiber.Ctx) error {
-	id, _ := c.ParamsInt("id")
+	var r = repositories.New()
+	var id, _ = c.ParamsInt("id")
 
-	err := repositories.NewRepository(os.Getenv("DATABASE_DRIVER")).ToggleStatus(id)
+	err := r.ToggleStatus(id)
 	if err != nil {
 		return responses.New(c, &fiber.Map{"error": err.Error()}, fiber.StatusNotFound)
 	}

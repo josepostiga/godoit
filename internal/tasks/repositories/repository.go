@@ -20,7 +20,7 @@ type Task struct {
 	Completed_at pq.NullTime `json:"completed_at"`
 }
 
-type repository interface {
+type TasksRepository interface {
 	FindAll() ([]*Task, error)
 	FindById(id int) (*Task, error)
 	Create(task *Task) error
@@ -29,34 +29,18 @@ type repository interface {
 	ToggleStatus(id int) error
 }
 
-var repo repository
-
-func NewRepository(driver string) repository {
-	if repo != nil {
-		return repo
-	}
-
-	switch driver {
-	case "memory":
-		repo = memoryRepository{}
-	case "database":
-		dsl, err := url.Parse(os.Getenv("DATABASE_URL"))
-		if err != nil {
-			log.Fatalf("Could not parse DATABASE_URL: %v", err)
-			return nil
-		}
-
-		db, err := sql.Open("postgres", dsl.String())
-		if err != nil {
-			log.Fatalf("Could not open database: %v", err)
-			return nil
-		}
-
-		repo = dbRepository{db}
-	default:
-		log.Fatalf("Database driver %s not supported", os.Getenv("DATABASE_DRIVER"))
+func New() TasksRepository {
+	dsl, err := url.Parse(os.Getenv("DATABASE_URL"))
+	if err != nil {
+		log.Fatalf("Could not parse DATABASE_URL: %s", err.Error())
 		return nil
 	}
 
-	return repo
+	db, err := sql.Open("postgres", dsl.String())
+	if err != nil || db.Ping() != nil {
+		log.Fatalf("Could not connect to database.")
+		return nil
+	}
+
+	return &dbRepository{db}
 }
