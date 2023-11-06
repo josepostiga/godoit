@@ -10,7 +10,7 @@ import (
 
 func Authenticated(c *fiber.Ctx) error {
 	if len(c.Get("Authorization")) < 7 {
-		return responses.New(c, &fiber.Map{"error": "Invalid authorization token."}, fiber.StatusUnauthorized)
+		return responses.NewJSONResponse(c, &fiber.Map{"error": "Invalid authorization token."}, fiber.StatusUnauthorized)
 	}
 
 	_, err := jwt.Parse(c.Get("Authorization")[7:], func(token *jwt.Token) (interface{}, error) {
@@ -21,7 +21,7 @@ func Authenticated(c *fiber.Ctx) error {
 	})
 
 	if err != nil {
-		return responses.New(c, &fiber.Map{"error": "Unauthorized"}, fiber.StatusUnauthorized)
+		return responses.NewJSONResponse(c, &fiber.Map{"error": "Unauthorized"}, fiber.StatusUnauthorized)
 	}
 
 	return c.Next()

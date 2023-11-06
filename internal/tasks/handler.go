@@ -13,7 +13,7 @@ func index(c *fiber.Ctx) error {
 	var r = repositories.New()
 	var tasks, _ = r.FindAll()
 
-	return responses.New(c, tasks, fiber.StatusOK)
+	return internal.NewJSONResponse(c, tasks, fiber.StatusOK)
 }
 
 func store(c *fiber.Ctx) error {
@@ -26,10 +26,10 @@ func store(c *fiber.Ctx) error {
 
 	err := r.Create(t)
 	if err != nil {
-		return responses.New(c, &fiber.Map{"error": err.Error()}, fiber.StatusBadRequest)
+		return internal.NewJSONResponse(c, &fiber.Map{"error": err.Error()}, fiber.StatusBadRequest)
 	}
 
-	return responses.New(c, t, fiber.StatusCreated)
+	return internal.NewJSONResponse(c, t, fiber.StatusCreated)
 }
 
 func update(c *fiber.Ctx) error {
@@ -45,10 +45,10 @@ func update(c *fiber.Ctx) error {
 
 	err := r.Update(t)
 	if err != nil {
-		return responses.New(c, &fiber.Map{"error": err.Error()}, fiber.StatusBadRequest)
+		return internal.NewJSONResponse(c, &fiber.Map{"error": err.Error()}, fiber.StatusBadRequest)
 	}
 
-	return responses.New(c, t, fiber.StatusOK)
+	return internal.NewJSONResponse(c, t, fiber.StatusOK)
 }
 
 func show(c *fiber.Ctx) error {
@@ -57,10 +57,10 @@ func show(c *fiber.Ctx) error {
 
 	t, err := r.FindById(id)
 	if err != nil {
-		return responses.New(c, &fiber.Map{"error": err.Error()}, fiber.StatusNotFound)
+		return internal.NewJSONResponse(c, &fiber.Map{"error": err.Error()}, fiber.StatusNotFound)
 	}
 
-	return responses.New(c, t, fiber.StatusOK)
+	return internal.NewJSONResponse(c, t, fiber.StatusOK)
 }
 
 func delete(c *fiber.Ctx) error {
@@ -69,10 +69,10 @@ func delete(c *fiber.Ctx) error {
 
 	err := r.Delete(id)
 	if err != nil {
-		return responses.New(c, &fiber.Map{"error": err.Error()}, fiber.StatusNotFound)
+		return internal.NewJSONResponse(c, &fiber.Map{"error": err.Error()}, fiber.StatusNotFound)
 	}
 
-	return responses.New(c, nil, http.StatusNoContent)
+	return internal.NewJSONResponse(c, nil, http.StatusNoContent)
 }
 
 func status(c *fiber.Ctx) error {
@@ -81,8 +81,8 @@ func status(c *fiber.Ctx) error {
 
 	err := r.ToggleStatus(id)
 	if err != nil {
-		return responses.New(c, &fiber.Map{"error": err.Error()}, fiber.StatusNotFound)
+		return internal.NewJSONResponse(c, &fiber.Map{"error": err.Error()}, fiber.StatusNotFound)
 	}
 
-	return responses.New(c, nil, fiber.StatusOK)
+	return internal.NewJSONResponse(c, nil, fiber.StatusOK)
 }

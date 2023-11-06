@@ -17,9 +17,8 @@ func main() {
 	}
 
 	app := fiber.New()
-
-	health_check.RegisterRoutes(app)
-	tasks.RegisterRoutes(app)
+	health_check.BootModule(app)
+	tasks.BootModule(app)
 
 	port := os.Getenv("HTTP_PORT")
 	if port == "" {
